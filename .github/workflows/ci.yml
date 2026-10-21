@@ -1,0 +1,35 @@
+name: Verilog Simulation & Verification CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual trigger from GitHub web UI
+
+jobs:
+  simulate:
+    name: Run All DLD Matching Engine Testbenches
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Python Reference Model Tests
+        run: |
+          python docs/reference_model.py
+
+      - name: Run All Verilog Hardware Testbenches
+        run: |
+          bash run_sim.sh
