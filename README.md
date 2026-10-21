@@ -6,6 +6,9 @@
 [![Tests](https://img.shields.io/badge/Testbenches-12%20PASS-brightgreen.svg)]()
 [![Hardware](https://img.shields.io/badge/FPGA-Synthesizable%20RTL-orange.svg)]()
 
+> 🎮 **[Interactive Order Book Console (index.html)](./index.html)** — *Click to test live order flow in your browser.*  
+> 📖 **[Final Viva & Presentation Guide](./docs/FINAL_VIVA_PRESENTATION_GUIDE.md)** — *Complete 1-minute speeches, architecture flow, and viva Q&A for all 5 members.*
+
 ---
 
 ## 1. Project Overview
