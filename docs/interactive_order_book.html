@@ -2,28 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DLD Hardware Matching Engine - Interactive Order Book</title>
+  <title>Hardware Limit Order Book & Matching Engine Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased p-4">
-  <div class="bg-slate-800 text-slate-100 border border-slate-700 rounded-2xl p-6 shadow-2xl max-w-5xl mx-auto space-y-4">
+  <div class="bg-slate-800 text-slate-100 border border-slate-700 rounded-xl p-6 shadow-xl max-w-5xl mx-auto space-y-4">
     
     <!-- Top Header & Status -->
     <div class="flex flex-wrap items-center justify-between border-b border-slate-700 pb-4 gap-2">
       <div>
-        <h1 class="font-bold text-2xl text-white tracking-tight flex items-center gap-2">
-          <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-          DLD Hardware Matching Engine — Live Interactive Console
+        <h1 class="font-bold text-xl text-white tracking-tight">
+          Hardware Limit Order Book & Matching Engine
         </h1>
         <p class="text-slate-400 text-xs mt-1">
-          Verilog RTL Exact Behavioral Simulation • Price-Time Priority • 16-slot Shared CAM Memory
+          Behavioral Reference Model • Verilog RTL Mirror • Price-Time Priority
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <span id="fsmBadge" class="px-3 py-1 rounded-md text-xs font-mono font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+        <span id="fsmBadge" class="px-2.5 py-1 rounded text-xs font-mono font-medium bg-slate-700 text-blue-400 border border-slate-600">
           STATE: S_IDLE
         </span>
-        <span id="freeSlotBadge" class="px-3 py-1 rounded-md text-xs font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+        <span id="freeSlotBadge" class="px-2.5 py-1 rounded text-xs font-mono font-medium bg-slate-700 text-purple-400 border border-slate-600">
           SLOTS: 16/16 FREE
         </span>
       </div>
@@ -31,18 +31,18 @@
 
     <!-- Quick Presets -->
     <div class="flex flex-wrap items-center gap-2 pt-1">
-      <span class="text-xs font-medium text-slate-400">Quick Demos:</span>
-      <button onclick="runPreset('worked')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
-        Worked Example (3-Trade Sweep)
+      <span class="text-xs font-medium text-slate-400">Scenarios:</span>
+      <button onclick="runPreset('worked')" class="px-3 py-1.5 text-xs rounded bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
+        Stage 1 Worked Example (3 Trades)
       </button>
-      <button onclick="runPreset('fifo')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
-        FIFO Time-Priority Test
+      <button onclick="runPreset('fifo')" class="px-3 py-1.5 text-xs rounded bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
+        Equal-Price FIFO Priority
       </button>
-      <button onclick="runPreset('risk')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
-        Pre-Trade Risk Filter Reject
+      <button onclick="runPreset('risk')" class="px-3 py-1.5 text-xs rounded bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
+        Risk Filter Violations
       </button>
-      <button onclick="resetEngine()" class="px-3 py-1.5 text-xs rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 transition font-medium ml-auto">
-        Reset Engine
+      <button onclick="resetEngine()" class="px-3 py-1.5 text-xs rounded bg-slate-700 hover:bg-slate-600 text-rose-400 transition font-medium ml-auto">
+        Reset
       </button>
     </div>
 
@@ -50,20 +50,20 @@
     <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
       
       <!-- Left Column: Input Form (5 cols) -->
-      <div class="md:col-span-5 bg-slate-900/60 p-4 rounded-xl border border-slate-700 space-y-3">
-        <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider flex items-center justify-between">
+      <div class="md:col-span-5 bg-slate-900/60 p-4 rounded-lg border border-slate-700 space-y-3">
+        <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center justify-between">
           <span>Order Input Port</span>
-          <span class="text-[11px] text-slate-400 font-normal">valid/ready handshake</span>
+          <span class="text-[11px] text-slate-500 font-normal">valid/ready</span>
         </h2>
 
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Order Side</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Side</label>
           <div class="grid grid-cols-2 gap-2">
-            <button id="btnBuy" onclick="setSide(1)" class="py-2 px-3 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm">
-              BUY (Bid)
+            <button id="btnBuy" onclick="setSide(1)" class="py-1.5 px-3 rounded text-xs font-semibold transition bg-emerald-700 text-white">
+              BUY (1'b1)
             </button>
-            <button id="btnSell" onclick="setSide(0)" class="py-2 px-3 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400 hover:text-white">
-              SELL (Ask)
+            <button id="btnSell" onclick="setSide(0)" class="py-1.5 px-3 rounded text-xs font-semibold transition bg-slate-800 text-slate-400 hover:text-white">
+              SELL (1'b0)
             </button>
           </div>
         </div>
@@ -71,73 +71,72 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Order ID</label>
-            <input id="inId" type="number" value="101" min="1" max="65535" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <input id="inId" type="number" value="101" min="1" max="65535" class="w-full px-2.5 py-1.5 rounded text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-slate-500">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Price (1..63)</label>
-            <input id="inPrice" type="number" value="50" min="1" max="63" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <input id="inPrice" type="number" value="50" min="1" max="63" class="w-full px-2.5 py-1.5 rounded text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-slate-500">
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Quantity (1..1000)</label>
-          <input id="inQty" type="number" value="100" min="1" max="1000" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500">
+          <input id="inQty" type="number" value="100" min="1" max="1000" class="w-full px-2.5 py-1.5 rounded text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:border-slate-500">
         </div>
 
-        <button onclick="submitUserOrder()" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs tracking-wide transition shadow-lg flex items-center justify-center gap-2">
-          <span>Pulse in_valid (Submit Order)</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+        <button onclick="submitUserOrder()" class="w-full py-2 px-4 rounded bg-blue-700 hover:bg-blue-600 text-white font-medium text-xs tracking-wide transition shadow">
+          Submit Order (Pulse in_valid)
         </button>
 
         <!-- Hardware Feedback box -->
-        <div id="hwStatusBox" class="p-3 rounded-lg bg-slate-800/80 border border-slate-700 text-xs font-mono space-y-1.5">
-          <div class="text-slate-400 text-[11px] uppercase tracking-wider font-sans font-semibold">Hardware Telemetry</div>
-          <div class="flex justify-between"><span>Risk Check:</span><span id="telRisk" class="text-emerald-400 font-bold">READY</span></div>
-          <div class="flex justify-between"><span>Best Bid/Ask:</span><span id="telMarket">-- / --</span></div>
-          <div class="flex justify-between"><span>Last Latency:</span><span id="telLatency">0 cycles</span></div>
+        <div id="hwStatusBox" class="p-2.5 rounded bg-slate-800 border border-slate-700 text-xs font-mono space-y-1">
+          <div class="text-slate-400 text-[11px] uppercase tracking-wider font-sans font-semibold">Datapath Status</div>
+          <div class="flex justify-between"><span>Risk Check:</span><span id="telRisk" class="text-emerald-400 font-medium">READY</span></div>
+          <div class="flex justify-between"><span>Best Bid / Ask:</span><span id="telMarket">-- / --</span></div>
+          <div class="flex justify-between"><span>Matching Latency:</span><span id="telLatency">0 cycles</span></div>
         </div>
       </div>
 
       <!-- Right Column: Live Order Book Depth Ladder (7 cols) -->
-      <div class="md:col-span-7 bg-slate-900/60 p-4 rounded-xl border border-slate-700 flex flex-col justify-between">
+      <div class="md:col-span-7 bg-slate-900/60 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
         <div>
-          <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>Live Hardware Limit Order Book</span>
-            <span id="spreadDisplay" class="text-xs font-mono font-medium text-slate-400">Spread: --</span>
+          <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Order Book Depth Ladder</span>
+            <span id="spreadDisplay" class="text-xs font-mono text-slate-400">Spread: --</span>
           </h2>
 
           <!-- Table Header -->
           <div class="grid grid-cols-12 text-[11px] font-semibold text-slate-400 border-b border-slate-700 pb-1 mb-1">
             <span class="col-span-2">SIDE</span>
             <span class="col-span-3 text-right">PRICE</span>
-            <span class="col-span-3 text-right">TOTAL QTY</span>
-            <span class="col-span-4 text-right">FIFO QUEUE</span>
+            <span class="col-span-3 text-right">QUANTITY</span>
+            <span class="col-span-4 text-right">QUEUE ORDERS</span>
           </div>
 
           <!-- ASKS Container (Red) -->
-          <div id="askList" class="space-y-1 min-h-[90px] text-xs font-mono flex flex-col justify-end">
-            <div class="text-center text-slate-500 py-3 text-xs italic">No resting Ask orders</div>
+          <div id="askList" class="space-y-1 min-h-[85px] text-xs font-mono flex flex-col justify-end">
+            <div class="text-center text-slate-500 py-2 text-xs italic">No resting Asks</div>
           </div>
 
           <!-- SPREAD DIVIDER -->
-          <div class="my-2 py-1.5 px-3 bg-slate-800 border border-slate-700 rounded-md text-center text-xs font-mono text-slate-300 flex items-center justify-between">
-            <span>INSIDE MARKET (Best Bid / Ask)</span>
-            <span id="insideMarketTag" class="text-blue-400 font-bold">EMPTY</span>
+          <div class="my-1.5 py-1 px-3 bg-slate-800 border border-slate-700 rounded text-center text-xs font-mono text-slate-400 flex items-center justify-between">
+            <span>SPREAD GAP</span>
+            <span id="insideMarketTag" class="text-slate-300 font-medium">EMPTY</span>
           </div>
 
           <!-- BIDS Container (Green) -->
-          <div id="bidList" class="space-y-1 min-h-[90px] text-xs font-mono">
-            <div class="text-center text-slate-500 py-3 text-xs italic">No resting Bid orders</div>
+          <div id="bidList" class="space-y-1 min-h-[85px] text-xs font-mono">
+            <div class="text-center text-slate-500 py-2 text-xs italic">No resting Bids</div>
           </div>
         </div>
 
         <!-- 16 Hardware Memory Slots visualizer -->
-        <div class="pt-3 border-t border-slate-700 mt-3">
-          <div class="text-[11px] font-medium text-slate-400 mb-1.5 flex justify-between">
-            <span>Shared Order Memory Slots (Depth = 16)</span>
+        <div class="pt-2.5 border-t border-slate-700 mt-2">
+          <div class="text-[11px] font-medium text-slate-400 mb-1 flex justify-between">
+            <span>Order Memory Allocation (16 Slots)</span>
             <span id="slotCountLabel">16 free</span>
           </div>
-          <div id="slotGrid" class="grid grid-cols-8 gap-1.5">
+          <div id="slotGrid" class="grid grid-cols-8 gap-1">
             <!-- 16 slots generated by JS -->
           </div>
         </div>
@@ -145,13 +144,13 @@
     </div>
 
     <!-- Trade Execution Log -->
-    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
-      <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
-        <span>Trade Execution & Event Log</span>
-        <button onclick="clearLogs()" class="text-[11px] text-slate-400 hover:text-white underline font-normal">Clear Log</button>
+    <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-700">
+      <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center justify-between">
+        <span>Execution & Event Log</span>
+        <button onclick="clearLogs()" class="text-[11px] text-slate-400 hover:text-white underline font-normal">Clear</button>
       </h2>
-      <div id="tradeLog" class="space-y-1 max-h-36 overflow-y-auto text-xs font-mono pr-1">
-        <div class="text-slate-500 italic">Engine reset and ready for order flow.</div>
+      <div id="tradeLog" class="space-y-1 max-h-32 overflow-y-auto text-xs font-mono pr-1">
+        <div class="text-slate-500 italic">Engine idle. Ready for order input.</div>
       </div>
     </div>
 
@@ -167,11 +166,11 @@
       const bBuy = document.getElementById('btnBuy');
       const bSell = document.getElementById('btnSell');
       if (s === 1) {
-        bBuy.className = 'py-2 px-3 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm';
-        bSell.className = 'py-2 px-3 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400 hover:text-white';
+        bBuy.className = 'py-1.5 px-3 rounded text-xs font-semibold transition bg-emerald-700 text-white';
+        bSell.className = 'py-1.5 px-3 rounded text-xs font-semibold transition bg-slate-800 text-slate-400 hover:text-white';
       } else {
-        bSell.className = 'py-2 px-3 rounded-lg text-xs font-bold transition bg-rose-600 text-white shadow-sm';
-        bBuy.className = 'py-2 px-3 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400 hover:text-white';
+        bSell.className = 'py-1.5 px-3 rounded text-xs font-semibold transition bg-rose-700 text-white';
+        bBuy.className = 'py-1.5 px-3 rounded text-xs font-semibold transition bg-slate-800 text-slate-400 hover:text-white';
       }
     }
 
@@ -179,42 +178,42 @@
       const log = document.getElementById('tradeLog');
       const div = document.createElement('div');
       div.className = 'py-0.5 border-b border-slate-800 last:border-0';
-      if (type === 'trade') div.innerHTML = `<span class="text-emerald-400 font-bold">[TRADE]</span> ${msg}`;
-      else if (type === 'reject') div.innerHTML = `<span class="text-rose-400 font-bold">[REJECT]</span> ${msg}`;
-      else if (type === 'rest') div.innerHTML = `<span class="text-blue-400 font-bold">[REST]</span> ${msg}`;
-      else div.innerHTML = `<span class="text-slate-400">[INFO]</span> ${msg}`;
+      if (type === 'trade') div.innerHTML = `<span class="text-emerald-400 font-semibold">[TRADE]</span> ${msg}`;
+      else if (type === 'reject') div.innerHTML = `<span class="text-rose-400 font-semibold">[REJECT]</span> ${msg}`;
+      else if (type === 'rest') div.innerHTML = `<span class="text-blue-400 font-semibold">[REST]</span> ${msg}`;
+      else div.innerHTML = `<span class="text-slate-500">[INFO]</span> ${msg}`;
       log.prepend(div);
     }
 
     function clearLogs() {
-      document.getElementById('tradeLog').innerHTML = '<div class="text-slate-500 italic">Logs cleared.</div>';
+      document.getElementById('tradeLog').innerHTML = '<div class="text-slate-500 italic">Log cleared.</div>';
     }
 
     function resetEngine() {
       orderSlots = Array(16).fill(null);
       clearLogs();
-      logEvent('Engine asynchronously reset (rst_n pulsed). All books empty.');
+      logEvent('Asynchronous reset asserted. Engine in S_IDLE.');
       updateUI();
     }
 
     function processOrder(id, side, price, qty) {
       let rejectReason = null;
-      if (qty < 1 || qty > 1000) rejectReason = "Invalid Quantity (allowed [1..1000])";
-      else if (price < 1 || price > 63) rejectReason = "Price out of band (allowed [1..63])";
-      else if (price * qty > 50000) rejectReason = `Notional ${price * qty} exceeds MAX_NOTIONAL 50000`;
+      if (qty < 1 || qty > 1000) rejectReason = "Quantity out of bounds [1..1000]";
+      else if (price < 1 || price > 63) rejectReason = "Price out of band [1..63]";
+      else if (price * qty > 50000) rejectReason = `Notional (${price * qty}) exceeds MAX_NOTIONAL (50000)`;
 
       if (rejectReason) {
         document.getElementById('fsmBadge').textContent = 'STATE: S_REJECT';
-        document.getElementById('fsmBadge').className = 'px-3 py-1 rounded-md text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        document.getElementById('fsmBadge').className = 'px-2.5 py-1 rounded text-xs font-mono font-medium bg-slate-700 text-rose-400 border border-slate-600';
         document.getElementById('telRisk').textContent = 'REJECTED';
-        document.getElementById('telRisk').className = 'text-rose-400 font-bold';
+        document.getElementById('telRisk').className = 'text-rose-400 font-medium';
         document.getElementById('telLatency').textContent = '2 cycles';
-        logEvent(`Order #${id} (${side ? 'BUY' : 'SELL'} ${qty}@${price}) REJECTED: ${rejectReason}`, 'reject');
+        logEvent(`Order #${id} (${side ? 'BUY' : 'SELL'} ${qty}@${price}) rejected: ${rejectReason}`, 'reject');
         return;
       }
 
       document.getElementById('telRisk').textContent = 'OK';
-      document.getElementById('telRisk').className = 'text-emerald-400 font-bold';
+      document.getElementById('telRisk').className = 'text-emerald-400 font-medium';
 
       let rem = qty;
       let tradesDone = 0;
@@ -259,7 +258,7 @@
         let sellId = side === 1 ? resting.id : id;
 
         tradesDone++;
-        logEvent(`Trade #${tradesDone}: ${tq} units @ Price ${bestPx} (Resting) | Buy #${buyId} vs Sell #${sellId}`, 'trade');
+        logEvent(`Trade #${tradesDone}: ${tq} units @ Price ${bestPx} (Resting limit) | Buy #${buyId} vs Sell #${sellId}`, 'trade');
 
         rem -= tq;
         resting.qty -= tq;
@@ -272,18 +271,18 @@
       if (rem > 0) {
         let freeIdx = orderSlots.findIndex(s => s === null);
         if (freeIdx === -1) {
-          logEvent(`Order #${id} remaining ${rem} units cannot rest: BOOK FULL (16 slots in use)`, 'reject');
+          logEvent(`Order #${id} remaining ${rem} units rejected: Book capacity exceeded (16 slots)`, 'reject');
         } else {
           seqCounter++;
           orderSlots[freeIdx] = { id, side, price, qty: rem, seq: seqCounter };
-          logEvent(`Order #${id} remainder: ${rem} units resting as ${side ? 'BID' : 'ASK'} @ Price ${price}`, 'rest');
+          logEvent(`Order #${id} remaining ${rem} units resting at Price ${price} (${side ? 'BID' : 'ASK'})`, 'rest');
         }
       }
 
       let lat = tradesDone === 0 ? 5 : (3 * tradesDone + 2);
       document.getElementById('telLatency').textContent = `${lat} cycles`;
       document.getElementById('fsmBadge').textContent = 'STATE: S_DONE';
-      document.getElementById('fsmBadge').className = 'px-3 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      document.getElementById('fsmBadge').className = 'px-2.5 py-1 rounded text-xs font-mono font-medium bg-slate-700 text-emerald-400 border border-slate-600';
 
       updateUI();
     }
@@ -319,18 +318,18 @@
       let askHtml = '';
       let askPrices = Object.keys(asks).map(Number).sort((a,b) => b - a);
       if (askPrices.length === 0) {
-        askHtml = '<div class="text-center text-slate-500 py-3 text-xs italic">No resting Ask orders</div>';
+        askHtml = '<div class="text-center text-slate-500 py-2 text-xs italic">No resting Asks</div>';
       } else {
         askPrices.forEach(p => {
           let orders = asks[p];
           let totQ = orders.reduce((acc, o) => acc + o.qty, 0);
           let queueStr = orders.map(o => `#${o.id}(${o.qty})`).join(', ');
           askHtml += `
-            <div class="grid grid-cols-12 py-1.5 px-2 rounded bg-rose-500/10 text-rose-400 font-mono text-xs items-center">
-              <span class="col-span-2 font-bold">ASK</span>
-              <span class="col-span-3 text-right font-bold">${p}</span>
+            <div class="grid grid-cols-12 py-1 px-2 rounded bg-rose-950/40 text-rose-400 font-mono text-xs items-center border border-rose-900/40">
+              <span class="col-span-2 font-semibold">ASK</span>
+              <span class="col-span-3 text-right font-semibold">${p}</span>
               <span class="col-span-3 text-right">${totQ}</span>
-              <span class="col-span-4 text-right truncate text-white" title="${queueStr}">${queueStr}</span>
+              <span class="col-span-4 text-right truncate text-slate-300" title="${queueStr}">${queueStr}</span>
             </div>`;
         });
       }
@@ -339,18 +338,18 @@
       let bidHtml = '';
       let bidPrices = Object.keys(bids).map(Number).sort((a,b) => b - a);
       if (bidPrices.length === 0) {
-        bidHtml = '<div class="text-center text-slate-500 py-3 text-xs italic">No resting Bid orders</div>';
+        bidHtml = '<div class="text-center text-slate-500 py-2 text-xs italic">No resting Bids</div>';
       } else {
         bidPrices.forEach(p => {
           let orders = bids[p];
           let totQ = orders.reduce((acc, o) => acc + o.qty, 0);
           let queueStr = orders.map(o => `#${o.id}(${o.qty})`).join(', ');
           bidHtml += `
-            <div class="grid grid-cols-12 py-1.5 px-2 rounded bg-emerald-500/10 text-emerald-400 font-mono text-xs items-center">
-              <span class="col-span-2 font-bold">BID</span>
-              <span class="col-span-3 text-right font-bold">${p}</span>
+            <div class="grid grid-cols-12 py-1 px-2 rounded bg-emerald-950/40 text-emerald-400 font-mono text-xs items-center border border-emerald-900/40">
+              <span class="col-span-2 font-semibold">BID</span>
+              <span class="col-span-3 text-right font-semibold">${p}</span>
               <span class="col-span-3 text-right">${totQ}</span>
-              <span class="col-span-4 text-right truncate text-white" title="${queueStr}">${queueStr}</span>
+              <span class="col-span-4 text-right truncate text-slate-300" title="${queueStr}">${queueStr}</span>
             </div>`;
         });
       }
@@ -375,7 +374,7 @@
       for (let i = 0; i < 16; i++) {
         let occ = orderSlots[i] !== null;
         slotGridHtml += `
-          <div class="p-1.5 rounded text-center text-[10px] font-mono border ${occ ? 'bg-blue-600 text-white border-blue-500 font-bold' : 'bg-slate-800 text-slate-500 border-slate-700'}">
+          <div class="p-1 rounded text-center text-[10px] font-mono border ${occ ? 'bg-blue-800 text-white border-blue-600 font-semibold' : 'bg-slate-800 text-slate-500 border-slate-700'}">
             S${i}
           </div>`;
       }
@@ -385,26 +384,26 @@
     function runPreset(type) {
       if (type === 'worked') {
         resetEngine();
-        logEvent('--- Loading Stage 1 Worked Example ---');
+        logEvent('Loading Stage 1 worked example: B1(100@50), B2(50@50), B3(200@49)...');
         processOrder(101, 1, 50, 100);
         processOrder(102, 1, 50,  50);
         processOrder(103, 1, 49, 200);
         setTimeout(() => {
-          logEvent('>>> Incoming Aggressive SELL 180 @ 49 arriving...');
+          logEvent('Submitting aggressive crossing order: S1(180@49)...');
           processOrder(201, 0, 49, 180);
-        }, 800);
+        }, 600);
       } else if (type === 'fifo') {
         resetEngine();
-        logEvent('--- Demonstrating FIFO Arrival Priority at Equal Price (50) ---');
+        logEvent('Loading equal-price orders at level 50: #401, #402, #403...');
         processOrder(401, 1, 50, 40);
         processOrder(402, 1, 50, 40);
         processOrder(403, 1, 50, 40);
         setTimeout(() => {
-          logEvent('>>> Incoming SELL 60 @ 50: Should fill #401 first (40), then #402 (20)...');
+          logEvent('Submitting SELL 60@50: Matches #401 first, then remaining 20 of #402...');
           processOrder(501, 0, 50, 60);
-        }, 800);
+        }, 600);
       } else if (type === 'risk') {
-        logEvent('--- Triggering Hardware Risk Filter Rejections ---');
+        logEvent('Evaluating parallel risk filter violations...');
         processOrder(991, 1, 50, 0);
         processOrder(992, 1, 65, 10);
         processOrder(993, 1, 60, 900);
