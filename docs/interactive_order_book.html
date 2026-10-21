@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DLD Hardware Matching Engine - Interactive Order Book</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased p-4">
+  <div class="bg-slate-800 text-slate-100 border border-slate-700 rounded-2xl p-6 shadow-2xl max-w-5xl mx-auto space-y-4">
+    
+    <!-- Top Header & Status -->
+    <div class="flex flex-wrap items-center justify-between border-b border-slate-700 pb-4 gap-2">
+      <div>
+        <h1 class="font-bold text-2xl text-white tracking-tight flex items-center gap-2">
+          <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+          DLD Hardware Matching Engine — Live Interactive Console
+        </h1>
+        <p class="text-slate-400 text-xs mt-1">
+          Verilog RTL Exact Behavioral Simulation • Price-Time Priority • 16-slot Shared CAM Memory
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="fsmBadge" class="px-3 py-1 rounded-md text-xs font-mono font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+          STATE: S_IDLE
+        </span>
+        <span id="freeSlotBadge" class="px-3 py-1 rounded-md text-xs font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+          SLOTS: 16/16 FREE
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="flex flex-wrap items-center gap-2 pt-1">
+      <span class="text-xs font-medium text-slate-400">Quick Demos:</span>
+      <button onclick="runPreset('worked')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
+        Worked Example (3-Trade Sweep)
+      </button>
+      <button onclick="runPreset('fifo')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
+        FIFO Time-Priority Test
+      </button>
+      <button onclick="runPreset('risk')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition font-medium">
+        Pre-Trade Risk Filter Reject
+      </button>
+      <button onclick="resetEngine()" class="px-3 py-1.5 text-xs rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 transition font-medium ml-auto">
+        Reset Engine
+      </button>
+    </div>
+
+    <!-- Main Grid: Input Form + Live Order Book -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+      
+      <!-- Left Column: Input Form (5 cols) -->
+      <div class="md:col-span-5 bg-slate-900/60 p-4 rounded-xl border border-slate-700 space-y-3">
+        <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider flex items-center justify-between">
+          <span>Order Input Port</span>
+          <span class="text-[11px] text-slate-400 font-normal">valid/ready handshake</span>
+        </h2>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Order Side</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnBuy" onclick="setSide(1)" class="py-2 px-3 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm">
+              BUY (Bid)
+            </button>
+            <button id="btnSell" onclick="setSide(0)" class="py-2 px-3 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400 hover:text-white">
+              SELL (Ask)
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Order ID</label>
+            <input id="inId" type="number" value="101" min="1" max="65535" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Price (1..63)</label>
+            <input id="inPrice" type="number" value="50" min="1" max="63" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Quantity (1..1000)</label>
+          <input id="inQty" type="number" value="100" min="1" max="1000" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-800 border border-slate-700 text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500">
+        </div>
+
+        <button onclick="submitUserOrder()" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs tracking-wide transition shadow-lg flex items-center justify-center gap-2">
+          <span>Pulse in_valid (Submit Order)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+        </button>
+
+        <!-- Hardware Feedback box -->
+        <div id="hwStatusBox" class="p-3 rounded-lg bg-slate-800/80 border border-slate-700 text-xs font-mono space-y-1.5">
+          <div class="text-slate-400 text-[11px] uppercase tracking-wider font-sans font-semibold">Hardware Telemetry</div>
+          <div class="flex justify-between"><span>Risk Check:</span><span id="telRisk" class="text-emerald-400 font-bold">READY</span></div>
+          <div class="flex justify-between"><span>Best Bid/Ask:</span><span id="telMarket">-- / --</span></div>
+          <div class="flex justify-between"><span>Last Latency:</span><span id="telLatency">0 cycles</span></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Order Book Depth Ladder (7 cols) -->
+      <div class="md:col-span-7 bg-slate-900/60 p-4 rounded-xl border border-slate-700 flex flex-col justify-between">
+        <div>
+          <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Live Hardware Limit Order Book</span>
+            <span id="spreadDisplay" class="text-xs font-mono font-medium text-slate-400">Spread: --</span>
+          </h2>
+
+          <!-- Table Header -->
+          <div class="grid grid-cols-12 text-[11px] font-semibold text-slate-400 border-b border-slate-700 pb-1 mb-1">
+            <span class="col-span-2">SIDE</span>
+            <span class="col-span-3 text-right">PRICE</span>
+            <span class="col-span-3 text-right">TOTAL QTY</span>
+            <span class="col-span-4 text-right">FIFO QUEUE</span>
+          </div>
+
+          <!-- ASKS Container (Red) -->
+          <div id="askList" class="space-y-1 min-h-[90px] text-xs font-mono flex flex-col justify-end">
+            <div class="text-center text-slate-500 py-3 text-xs italic">No resting Ask orders</div>
+          </div>
+
+          <!-- SPREAD DIVIDER -->
+          <div class="my-2 py-1.5 px-3 bg-slate-800 border border-slate-700 rounded-md text-center text-xs font-mono text-slate-300 flex items-center justify-between">
+            <span>INSIDE MARKET (Best Bid / Ask)</span>
+            <span id="insideMarketTag" class="text-blue-400 font-bold">EMPTY</span>
+          </div>
+
+          <!-- BIDS Container (Green) -->
+          <div id="bidList" class="space-y-1 min-h-[90px] text-xs font-mono">
+            <div class="text-center text-slate-500 py-3 text-xs italic">No resting Bid orders</div>
+          </div>
+        </div>
+
+        <!-- 16 Hardware Memory Slots visualizer -->
+        <div class="pt-3 border-t border-slate-700 mt-3">
+          <div class="text-[11px] font-medium text-slate-400 mb-1.5 flex justify-between">
+            <span>Shared Order Memory Slots (Depth = 16)</span>
+            <span id="slotCountLabel">16 free</span>
+          </div>
+          <div id="slotGrid" class="grid grid-cols-8 gap-1.5">
+            <!-- 16 slots generated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trade Execution Log -->
+    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+      <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
+        <span>Trade Execution & Event Log</span>
+        <button onclick="clearLogs()" class="text-[11px] text-slate-400 hover:text-white underline font-normal">Clear Log</button>
+      </h2>
+      <div id="tradeLog" class="space-y-1 max-h-36 overflow-y-auto text-xs font-mono pr-1">
+        <div class="text-slate-500 italic">Engine reset and ready for order flow.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSide = 1;
+    let orderSlots = Array(16).fill(null);
+    let seqCounter = 100;
+
+    function setSide(s) {
+      currentSide = s;
+      const bBuy = document.getElementById('btnBuy');
+      const bSell = document.getElementById('btnSell');
+      if (s === 1) {
+        bBuy.className = 'py-2 px-3 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm';
+        bSell.className = 'py-2 px-3 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400 hover:text-white';
+      } else {
+        bSell.className = 'py-2 px-3 rounded-lg text-xs font-bold transition bg-rose-600 text-white shadow-sm';
+        bBuy.className = 'py-2 px-3 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400 hover:text-white';
+      }
+    }
+
+    function logEvent(msg, type = 'info') {
+      const log = document.getElementById('tradeLog');
+      const div = document.createElement('div');
+      div.className = 'py-0.5 border-b border-slate-800 last:border-0';
+      if (type === 'trade') div.innerHTML = `<span class="text-emerald-400 font-bold">[TRADE]</span> ${msg}`;
+      else if (type === 'reject') div.innerHTML = `<span class="text-rose-400 font-bold">[REJECT]</span> ${msg}`;
+      else if (type === 'rest') div.innerHTML = `<span class="text-blue-400 font-bold">[REST]</span> ${msg}`;
+      else div.innerHTML = `<span class="text-slate-400">[INFO]</span> ${msg}`;
+      log.prepend(div);
+    }
+
+    function clearLogs() {
+      document.getElementById('tradeLog').innerHTML = '<div class="text-slate-500 italic">Logs cleared.</div>';
+    }
+
+    function resetEngine() {
+      orderSlots = Array(16).fill(null);
+      clearLogs();
+      logEvent('Engine asynchronously reset (rst_n pulsed). All books empty.');
+      updateUI();
+    }
+
+    function processOrder(id, side, price, qty) {
+      let rejectReason = null;
+      if (qty < 1 || qty > 1000) rejectReason = "Invalid Quantity (allowed [1..1000])";
+      else if (price < 1 || price > 63) rejectReason = "Price out of band (allowed [1..63])";
+      else if (price * qty > 50000) rejectReason = `Notional ${price * qty} exceeds MAX_NOTIONAL 50000`;
+
+      if (rejectReason) {
+        document.getElementById('fsmBadge').textContent = 'STATE: S_REJECT';
+        document.getElementById('fsmBadge').className = 'px-3 py-1 rounded-md text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        document.getElementById('telRisk').textContent = 'REJECTED';
+        document.getElementById('telRisk').className = 'text-rose-400 font-bold';
+        document.getElementById('telLatency').textContent = '2 cycles';
+        logEvent(`Order #${id} (${side ? 'BUY' : 'SELL'} ${qty}@${price}) REJECTED: ${rejectReason}`, 'reject');
+        return;
+      }
+
+      document.getElementById('telRisk').textContent = 'OK';
+      document.getElementById('telRisk').className = 'text-emerald-400 font-bold';
+
+      let rem = qty;
+      let tradesDone = 0;
+      let oppSide = side ? 0 : 1;
+
+      while (rem > 0) {
+        let eligibleSlots = [];
+        for (let i = 0; i < 16; i++) {
+          if (orderSlots[i] && orderSlots[i].side === oppSide) {
+            eligibleSlots.push(orderSlots[i]);
+          }
+        }
+        if (eligibleSlots.length === 0) break;
+
+        let bestPx = null;
+        if (side === 1) {
+          let minPx = Math.min(...eligibleSlots.map(s => s.price));
+          if (price >= minPx) bestPx = minPx;
+        } else {
+          let maxPx = Math.max(...eligibleSlots.map(s => s.price));
+          if (price <= maxPx) bestPx = maxPx;
+        }
+
+        if (bestPx === null) break;
+
+        let matchSlotIdx = -1;
+        let oldestSeq = Infinity;
+        for (let i = 0; i < 16; i++) {
+          if (orderSlots[i] && orderSlots[i].side === oppSide && orderSlots[i].price === bestPx) {
+            if (orderSlots[i].seq < oldestSeq) {
+              oldestSeq = orderSlots[i].seq;
+              matchSlotIdx = i;
+            }
+          }
+        }
+
+        if (matchSlotIdx === -1) break;
+
+        let resting = orderSlots[matchSlotIdx];
+        let tq = Math.min(rem, resting.qty);
+        let buyId = side === 1 ? id : resting.id;
+        let sellId = side === 1 ? resting.id : id;
+
+        tradesDone++;
+        logEvent(`Trade #${tradesDone}: ${tq} units @ Price ${bestPx} (Resting) | Buy #${buyId} vs Sell #${sellId}`, 'trade');
+
+        rem -= tq;
+        resting.qty -= tq;
+
+        if (resting.qty === 0) {
+          orderSlots[matchSlotIdx] = null;
+        }
+      }
+
+      if (rem > 0) {
+        let freeIdx = orderSlots.findIndex(s => s === null);
+        if (freeIdx === -1) {
+          logEvent(`Order #${id} remaining ${rem} units cannot rest: BOOK FULL (16 slots in use)`, 'reject');
+        } else {
+          seqCounter++;
+          orderSlots[freeIdx] = { id, side, price, qty: rem, seq: seqCounter };
+          logEvent(`Order #${id} remainder: ${rem} units resting as ${side ? 'BID' : 'ASK'} @ Price ${price}`, 'rest');
+        }
+      }
+
+      let lat = tradesDone === 0 ? 5 : (3 * tradesDone + 2);
+      document.getElementById('telLatency').textContent = `${lat} cycles`;
+      document.getElementById('fsmBadge').textContent = 'STATE: S_DONE';
+      document.getElementById('fsmBadge').className = 'px-3 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+
+      updateUI();
+    }
+
+    function submitUserOrder() {
+      let id = parseInt(document.getElementById('inId').value) || 100;
+      let price = parseInt(document.getElementById('inPrice').value) || 50;
+      let qty = parseInt(document.getElementById('inQty').value) || 10;
+      processOrder(id, currentSide, price, qty);
+      document.getElementById('inId').value = id + 1;
+    }
+
+    function updateUI() {
+      let bids = {};
+      let asks = {};
+      let freeCount = 0;
+
+      for (let i = 0; i < 16; i++) {
+        let s = orderSlots[i];
+        if (!s) { freeCount++; continue; }
+        if (s.side === 1) {
+          if (!bids[s.price]) bids[s.price] = [];
+          bids[s.price].push(s);
+        } else {
+          if (!asks[s.price]) asks[s.price] = [];
+          asks[s.price].push(s);
+        }
+      }
+
+      Object.keys(bids).forEach(p => bids[p].sort((a,b) => a.seq - b.seq));
+      Object.keys(asks).forEach(p => asks[p].sort((a,b) => a.seq - b.seq));
+
+      let askHtml = '';
+      let askPrices = Object.keys(asks).map(Number).sort((a,b) => b - a);
+      if (askPrices.length === 0) {
+        askHtml = '<div class="text-center text-slate-500 py-3 text-xs italic">No resting Ask orders</div>';
+      } else {
+        askPrices.forEach(p => {
+          let orders = asks[p];
+          let totQ = orders.reduce((acc, o) => acc + o.qty, 0);
+          let queueStr = orders.map(o => `#${o.id}(${o.qty})`).join(', ');
+          askHtml += `
+            <div class="grid grid-cols-12 py-1.5 px-2 rounded bg-rose-500/10 text-rose-400 font-mono text-xs items-center">
+              <span class="col-span-2 font-bold">ASK</span>
+              <span class="col-span-3 text-right font-bold">${p}</span>
+              <span class="col-span-3 text-right">${totQ}</span>
+              <span class="col-span-4 text-right truncate text-white" title="${queueStr}">${queueStr}</span>
+            </div>`;
+        });
+      }
+      document.getElementById('askList').innerHTML = askHtml;
+
+      let bidHtml = '';
+      let bidPrices = Object.keys(bids).map(Number).sort((a,b) => b - a);
+      if (bidPrices.length === 0) {
+        bidHtml = '<div class="text-center text-slate-500 py-3 text-xs italic">No resting Bid orders</div>';
+      } else {
+        bidPrices.forEach(p => {
+          let orders = bids[p];
+          let totQ = orders.reduce((acc, o) => acc + o.qty, 0);
+          let queueStr = orders.map(o => `#${o.id}(${o.qty})`).join(', ');
+          bidHtml += `
+            <div class="grid grid-cols-12 py-1.5 px-2 rounded bg-emerald-500/10 text-emerald-400 font-mono text-xs items-center">
+              <span class="col-span-2 font-bold">BID</span>
+              <span class="col-span-3 text-right font-bold">${p}</span>
+              <span class="col-span-3 text-right">${totQ}</span>
+              <span class="col-span-4 text-right truncate text-white" title="${queueStr}">${queueStr}</span>
+            </div>`;
+        });
+      }
+      document.getElementById('bidList').innerHTML = bidHtml;
+
+      let bestBid = bidPrices.length > 0 ? bidPrices[0] : null;
+      let bestAsk = askPrices.length > 0 ? Math.min(...askPrices) : null;
+
+      document.getElementById('telMarket').textContent = `${bestBid !== null ? bestBid : '--'} / ${bestAsk !== null ? bestAsk : '--'}`;
+      if (bestBid !== null && bestAsk !== null) {
+        let spread = bestAsk - bestBid;
+        document.getElementById('spreadDisplay').textContent = `Spread: ${spread} ticks`;
+        document.getElementById('insideMarketTag').textContent = `BID ${bestBid} | ASK ${bestAsk}`;
+      } else {
+        document.getElementById('spreadDisplay').textContent = 'Spread: --';
+        document.getElementById('insideMarketTag').textContent = bestBid !== null ? `BID ONLY (${bestBid})` : (bestAsk !== null ? `ASK ONLY (${bestAsk})` : 'EMPTY');
+      }
+
+      document.getElementById('freeSlotBadge').textContent = `SLOTS: ${freeCount}/16 FREE`;
+      document.getElementById('slotCountLabel').textContent = `${freeCount} free, ${16 - freeCount} in use`;
+      let slotGridHtml = '';
+      for (let i = 0; i < 16; i++) {
+        let occ = orderSlots[i] !== null;
+        slotGridHtml += `
+          <div class="p-1.5 rounded text-center text-[10px] font-mono border ${occ ? 'bg-blue-600 text-white border-blue-500 font-bold' : 'bg-slate-800 text-slate-500 border-slate-700'}">
+            S${i}
+          </div>`;
+      }
+      document.getElementById('slotGrid').innerHTML = slotGridHtml;
+    }
+
+    function runPreset(type) {
+      if (type === 'worked') {
+        resetEngine();
+        logEvent('--- Loading Stage 1 Worked Example ---');
+        processOrder(101, 1, 50, 100);
+        processOrder(102, 1, 50,  50);
+        processOrder(103, 1, 49, 200);
+        setTimeout(() => {
+          logEvent('>>> Incoming Aggressive SELL 180 @ 49 arriving...');
+          processOrder(201, 0, 49, 180);
+        }, 800);
+      } else if (type === 'fifo') {
+        resetEngine();
+        logEvent('--- Demonstrating FIFO Arrival Priority at Equal Price (50) ---');
+        processOrder(401, 1, 50, 40);
+        processOrder(402, 1, 50, 40);
+        processOrder(403, 1, 50, 40);
+        setTimeout(() => {
+          logEvent('>>> Incoming SELL 60 @ 50: Should fill #401 first (40), then #402 (20)...');
+          processOrder(501, 0, 50, 60);
+        }, 800);
+      } else if (type === 'risk') {
+        logEvent('--- Triggering Hardware Risk Filter Rejections ---');
+        processOrder(991, 1, 50, 0);
+        processOrder(992, 1, 65, 10);
+        processOrder(993, 1, 60, 900);
+      }
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>
