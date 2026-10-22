@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 420" width="950" height="420" style="background:#ffffff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <defs>
+    <marker id="bk-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2d3748" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <rect x="20" y="15" width="910" height="40" rx="4" fill="#edf2f7" stroke="#cbd5e0" stroke-width="1.5" />
+  <text x="475" y="40" text-anchor="middle" font-size="16" font-weight="bold" fill="#2d3748">Hardware Order Book Depth: Price-Time Priority &amp; Sweep Matching</text>
+
+  <!-- Bids Table (Left) -->
+  <g transform="translate(40, 75)">
+    <rect x="0" y="0" width="400" height="310" rx="6" fill="#f0fff4" stroke="#38a169" stroke-width="1.5" />
+    <rect x="0" y="0" width="400" height="35" rx="6" fill="#38a169" />
+    <text x="200" y="24" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">BID BOOK (Buy Orders - Sorted Descending Price)</text>
+    
+    <!-- Table Header -->
+    <text x="50" y="55" font-size="11" font-weight="bold" fill="#276749">PRICE</text>
+    <text x="130" y="55" font-size="11" font-weight="bold" fill="#276749">QTY</text>
+    <text x="230" y="55" font-size="11" font-weight="bold" fill="#276749">QUEUE ORDER (FIFO)</text>
+    <text x="360" y="55" font-size="11" font-weight="bold" fill="#276749">PRIORITY</text>
+
+    <!-- Row 1 -->
+    <rect x="10" y="65" width="380" height="45" rx="4" fill="#c6f6d5" stroke="#68d391" stroke-width="1" />
+    <text x="50" y="92" font-size="14" font-weight="bold" fill="#22543d">Tick 48</text>
+    <text x="130" y="92" font-size="13" fill="#22543d">150</text>
+    <text x="230" y="92" font-size="12" fill="#22543d">Order #101 (Head)</text>
+    <text x="360" y="92" font-size="11" font-weight="bold" fill="#2f855a">Best Bid (1)</text>
+
+    <!-- Row 2 -->
+    <rect x="10" y="120" width="380" height="45" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
+    <text x="50" y="147" font-size="13" fill="#2d3748">Tick 47</text>
+    <text x="130" y="147" font-size="13" fill="#2d3748">200</text>
+    <text x="230" y="147" font-size="12" fill="#2d3748">Order #102 -&gt; Order #104</text>
+    <text x="360" y="147" font-size="11" fill="#718096">Level 2</text>
+
+    <!-- Row 3 -->
+    <rect x="10" y="175" width="380" height="45" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
+    <text x="50" y="202" font-size="13" fill="#2d3748">Tick 45</text>
+    <text x="130" y="202" font-size="13" fill="#2d3748">80</text>
+    <text x="230" y="202" font-size="12" fill="#2d3748">Order #106 (Head)</text>
+    <text x="360" y="202" font-size="11" fill="#718096">Level 3</text>
+
+    <!-- Info text -->
+    <text x="200" y="280" text-anchor="middle" font-size="11" fill="#276749">price_bitmap tracks active bit indices (bits 48, 47, 45 = 1)</text>
+    <text x="200" y="298" text-anchor="middle" font-size="10" fill="#4a5568">Hierarchical Priority Encoder outputs highest active bit = 48</text>
+  </g>
+
+  <!-- Asks Table (Right) -->
+  <g transform="translate(510, 75)">
+    <rect x="0" y="0" width="400" height="310" rx="6" fill="#fff5f5" stroke="#e53e3e" stroke-width="1.5" />
+    <rect x="0" y="0" width="400" height="35" rx="6" fill="#e53e3e" />
+    <text x="200" y="24" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffffff">ASK BOOK (Sell Orders - Sorted Ascending Price)</text>
+    
+    <!-- Table Header -->
+    <text x="50" y="55" font-size="11" font-weight="bold" fill="#9b2c2c">PRICE</text>
+    <text x="130" y="55" font-size="11" font-weight="bold" fill="#9b2c2c">QTY</text>
+    <text x="230" y="55" font-size="11" font-weight="bold" fill="#9b2c2c">QUEUE ORDER (FIFO)</text>
+    <text x="360" y="55" font-size="11" font-weight="bold" fill="#9b2c2c">PRIORITY</text>
+
+    <!-- Row 1 -->
+    <rect x="10" y="65" width="380" height="45" rx="4" fill="#fed7d7" stroke="#feb2b2" stroke-width="1" />
+    <text x="50" y="92" font-size="14" font-weight="bold" fill="#9b2c2c">Tick 50</text>
+    <text x="130" y="92" font-size="13" fill="#9b2c2c">60</text>
+    <text x="230" y="92" font-size="12" fill="#9b2c2c">Order #201 (Head)</text>
+    <text x="360" y="92" font-size="11" font-weight="bold" fill="#c53030">Best Ask (1)</text>
+
+    <!-- Row 2 -->
+    <rect x="10" y="120" width="380" height="45" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
+    <text x="50" y="147" font-size="13" fill="#2d3748">Tick 52</text>
+    <text x="130" y="147" font-size="13" fill="#2d3748">110</text>
+    <text x="230" y="147" font-size="12" fill="#2d3748">Order #203 -&gt; Order #205</text>
+    <text x="360" y="147" font-size="11" fill="#718096">Level 2</text>
+
+    <!-- Row 3 -->
+    <rect x="10" y="175" width="380" height="45" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
+    <text x="50" y="202" font-size="13" fill="#2d3748">Tick 55</text>
+    <text x="130" y="202" font-size="13" fill="#2d3748">300</text>
+    <text x="230" y="202" font-size="12" fill="#2d3748">Order #207 (Head)</text>
+    <text x="360" y="202" font-size="11" fill="#718096">Level 3</text>
+
+    <!-- Info text -->
+    <text x="200" y="280" text-anchor="middle" font-size="11" fill="#9b2c2c">Bit-reversal encoder finds lowest set bit in Ask bitmap = 50</text>
+    <text x="200" y="298" text-anchor="middle" font-size="10" fill="#4a5568">Incoming BUY @ 52 matches Tick 50 (60 shares), then Tick 52</text>
+  </g>
+</svg>

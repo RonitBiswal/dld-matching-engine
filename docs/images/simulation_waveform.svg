@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 480" width="950" height="480" style="background:#ffffff; font-family:'Courier New',Courier,monospace;">
+  <!-- Title Header -->
+  <rect x="20" y="15" width="910" height="40" rx="4" fill="#2d3748" />
+  <text x="475" y="40" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="15" font-weight="bold" fill="#ffffff">RTL Execution Waveform: Multi-Cycle Limit Order Matching &amp; Execution</text>
+
+  <defs>
+    <pattern id="grid" width="105" height="400" patternUnits="userSpaceOnUse">
+      <line x1="105" y1="0" x2="105" y2="400" stroke="#edf2f7" stroke-width="1.5" stroke-dasharray="2" />
+    </pattern>
+  </defs>
+  <rect x="160" y="65" width="735" height="390" fill="url(#grid)" />
+
+  <!-- Cycle Headers -->
+  <g font-family="-apple-system,sans-serif" font-size="12" font-weight="bold" fill="#718096" text-anchor="middle">
+    <text x="212" y="80">Cycle 1</text>
+    <text x="317" y="80">Cycle 2</text>
+    <text x="422" y="80">Cycle 3</text>
+    <text x="527" y="80">Cycle 4</text>
+    <text x="632" y="80">Cycle 5</text>
+    <text x="737" y="80">Cycle 6</text>
+    <text x="842" y="80">Cycle 7</text>
+  </g>
+
+  <!-- Signal 1: clk -->
+  <text x="145" y="115" text-anchor="end" font-size="13" font-weight="bold" fill="#2d3748">clk</text>
+  <path d="M 160 120 L 212 120 L 212 98 L 265 98 L 265 120 L 317 120 L 317 98 L 370 98 L 370 120 L 422 120 L 422 98 L 475 98 L 475 120 L 527 120 L 527 98 L 580 98 L 580 120 L 632 120 L 632 98 L 685 98 L 685 120 L 737 120 L 737 98 L 790 98 L 790 120 L 842 120 L 842 98 L 895 98" fill="none" stroke="#3182ce" stroke-width="2" />
+
+  <!-- Signal 2: order_valid -->
+  <text x="145" y="155" text-anchor="end" font-size="13" font-weight="bold" fill="#2d3748">order_valid</text>
+  <path d="M 160 162 L 212 162 L 212 142 L 317 142 L 317 162 L 895 162" fill="none" stroke="#38a169" stroke-width="2" />
+  <text x="265" y="156" text-anchor="middle" font-size="11" fill="#22543d">PULSE</text>
+
+  <!-- Signal 3: in_price / in_qty -->
+  <text x="145" y="195" text-anchor="end" font-size="13" font-weight="bold" fill="#2d3748">in_order[px,qty]</text>
+  <polygon points="160,202 212,202 217,192 312,192 317,202 895,202" fill="#edf2f7" stroke="#4a5568" stroke-width="1.5" />
+  <polygon points="217,192 222,182 307,182 312,192 217,192" fill="#e2e8f0" stroke="#4a5568" stroke-width="1.5" />
+  <text x="265" y="196" text-anchor="middle" font-size="11" font-weight="bold" fill="#2d3748">BUY Px=50, Q=100</text>
+
+  <!-- Signal 4: FSM state -->
+  <text x="145" y="245" text-anchor="end" font-size="13" font-weight="bold" fill="#805ad5">fsm_state</text>
+  <polygon points="160,240 212,240 215,250 160,250" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <polygon points="160,240 212,240 215,230 160,230" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <text x="186" y="244" text-anchor="middle" font-size="10" font-weight="bold" fill="#553c9a">IDLE</text>
+
+  <polygon points="215,240 265,240 268,250 212,250" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <polygon points="215,240 265,240 268,230 212,230" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <text x="240" y="244" text-anchor="middle" font-size="10" font-weight="bold" fill="#553c9a">VALIDATE</text>
+
+  <polygon points="268,240 370,240 373,250 265,250" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <polygon points="268,240 370,240 373,230 265,230" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <text x="319" y="244" text-anchor="middle" font-size="10" font-weight="bold" fill="#553c9a">DISCOVER</text>
+
+  <polygon points="373,240 475,240 478,250 370,250" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <polygon points="373,240 475,240 478,230 370,230" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <text x="424" y="244" text-anchor="middle" font-size="10" font-weight="bold" fill="#553c9a">CHECK</text>
+
+  <polygon points="478,240 580,240 583,250 475,250" fill="#fed7d7" stroke="#e53e3e" stroke-width="1.5" />
+  <polygon points="478,240 580,240 583,230 475,230" fill="#fed7d7" stroke="#e53e3e" stroke-width="1.5" />
+  <text x="529" y="244" text-anchor="middle" font-size="10" font-weight="bold" fill="#9b2c2c">EXECUTE</text>
+
+  <polygon points="583,240 685,240 688,250 580,250" fill="#feebc8" stroke="#dd6b20" stroke-width="1.5" />
+  <polygon points="583,240 685,240 688,230 580,230" fill="#feebc8" stroke="#dd6b20" stroke-width="1.5" />
+  <text x="634" y="244" text-anchor="middle" font-size="10" font-weight="bold" fill="#9c4221">INSERT</text>
+
+  <polygon points="688,240 790,240 793,250 685,250" fill="#c6f6d5" stroke="#38a169" stroke-width="1.5" />
+  <polygon points="688,240 790,240 793,230 685,230" fill="#c6f6d5" stroke="#38a169" stroke-width="1.5" />
+  <text x="739" y="244" text-anchor="middle" font-size="10" font-weight="bold" fill="#22543d">DONE</text>
+
+  <polygon points="793,240 895,240 895,250 790,250" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <polygon points="793,240 895,240 895,230 790,230" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+  <text x="842" y="244" text-anchor="middle" font-size="10" font-weight="bold" fill="#553c9a">IDLE</text>
+
+  <!-- Signal 5: trade_valid -->
+  <text x="145" y="295" text-anchor="end" font-size="13" font-weight="bold" fill="#e53e3e">trade_valid</text>
+  <path d="M 160 302 L 475 302 L 475 282 L 580 282 L 580 302 L 895 302" fill="none" stroke="#e53e3e" stroke-width="2.5" />
+  <text x="528" y="295" text-anchor="middle" font-size="11" font-weight="bold" fill="#c53030">MATCH PULSE</text>
+
+  <!-- Signal 6: trade_price & qty -->
+  <text x="145" y="345" text-anchor="end" font-size="13" font-weight="bold" fill="#2d3748">trade_price/qty</text>
+  <polygon points="160,352 470,352 475,342 580,342 585,352 895,352" fill="#edf2f7" stroke="#4a5568" stroke-width="1.5" />
+  <polygon points="475,342 480,332 575,332 580,342 475,342" fill="#fed7d7" stroke="#e53e3e" stroke-width="1.5" />
+  <text x="528" y="346" text-anchor="middle" font-size="10" font-weight="bold" fill="#9b2c2c">Px=48, Qty=40</text>
+
+  <!-- Signal 7: done_pulse -->
+  <text x="145" y="395" text-anchor="end" font-size="13" font-weight="bold" fill="#38a169">done_pulse</text>
+  <path d="M 160 402 L 685 402 L 685 382 L 790 382 L 790 402 L 895 402" fill="none" stroke="#38a169" stroke-width="2.5" />
+  <text x="738" y="395" text-anchor="middle" font-size="11" font-weight="bold" fill="#22543d">ORDER COMPLETED</text>
+
+  <!-- Annotations / Notes -->
+  <g font-family="-apple-system,sans-serif" font-size="11" fill="#4a5568">
+    <text x="212" y="440" text-anchor="middle">1. Latch &amp; Check Risk</text>
+    <text x="317" y="440" text-anchor="middle">2. Priority Enc (O(1))</text>
+    <text x="422" y="440" text-anchor="middle">3. Read FIFO &amp; Memory</text>
+    <text x="527" y="440" text-anchor="middle">4. Min Arithmetic &amp; Trade</text>
+    <text x="632" y="440" text-anchor="middle">5. Remainder Inserted</text>
+    <text x="737" y="440" text-anchor="middle">6. Latch Ready</text>
+  </g>
+</svg>

@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 560" width="950" height="560" style="background:#ffffff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2d3748" />
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#c53030" />
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.1" />
+    </filter>
+  </defs>
+
+  <!-- Title Header -->
+  <rect x="20" y="15" width="910" height="45" rx="6" fill="#ebf8ff" stroke="#3182ce" stroke-width="1.5" />
+  <text x="475" y="43" text-anchor="middle" font-size="17" font-weight="bold" fill="#2b6cb0">Hardware Limit Order Book: Top-Level RTL Architecture &amp; Subsystem Dataflow</text>
+
+  <!-- Inputs Box -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="85" width="160" height="85" rx="6" fill="#edf2f7" stroke="#4a5568" stroke-width="1.5" />
+    <text x="110" y="108" text-anchor="middle" font-size="13" font-weight="bold" fill="#2d3748">Order Input Bus</text>
+    <text x="110" y="128" text-anchor="middle" font-size="11" fill="#4a5568">order_valid, order_id</text>
+    <text x="110" y="145" text-anchor="middle" font-size="11" fill="#4a5568">side, price, qty</text>
+  </g>
+
+  <!-- Member 5: Risk Filter -->
+  <g filter="url(#shadow)">
+    <rect x="240" y="85" width="200" height="85" rx="6" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="340" y="108" text-anchor="middle" font-size="13" font-weight="bold" fill="#9c4221">risk_filter (Member 5)</text>
+    <text x="340" y="128" text-anchor="middle" font-size="11" fill="#7b341e">Price &amp; Qty Bounds</text>
+    <text x="340" y="145" text-anchor="middle" font-size="11" fill="#7b341e">22-bit Notional (Px * Qty)</text>
+  </g>
+
+  <!-- Member 4: Master FSM Controller -->
+  <g filter="url(#shadow)">
+    <rect x="500" y="85" width="410" height="85" rx="6" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5" />
+    <text x="705" y="108" text-anchor="middle" font-size="14" font-weight="bold" fill="#553c9a">master_fsm Controller (Member 4)</text>
+    <text x="705" y="128" text-anchor="middle" font-size="11" fill="#44337a">8-State Moore Machine (IDLE, VAL, DISC, CHECK, EXEC, INSERT, DONE, REJECT)</text>
+    <text x="705" y="145" text-anchor="middle" font-size="11" fill="#44337a">Generates Glitch-Free Registered Control Strobes</text>
+  </g>
+
+  <!-- Middle Row: Subsystems -->
+  <!-- Member 1: Price Bitmap & Hier Priority Encoder -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="225" width="260" height="110" rx="6" fill="#ebf8ff" stroke="#3182ce" stroke-width="1.5" />
+    <text x="160" y="248" text-anchor="middle" font-size="13" font-weight="bold" fill="#2b6cb0">Price Discovery (Member 1)</text>
+    <text x="160" y="268" text-anchor="middle" font-size="11" fill="#2c5282">price_bitmap.v (64-bit Bid/Ask)</text>
+    <text x="160" y="286" text-anchor="middle" font-size="11" fill="#2c5282">hier_priority_encoder (8x8 Parallel)</text>
+    <text x="160" y="304" text-anchor="middle" font-size="11" fill="#2c5282">1-Cycle Best Price Extraction</text>
+  </g>
+
+  <!-- Member 2: Order Memory, FIFO & Allocator -->
+  <g filter="url(#shadow)">
+    <rect x="340" y="225" width="270" height="110" rx="6" fill="#f0fff4" stroke="#38a169" stroke-width="1.5" />
+    <text x="475" y="248" text-anchor="middle" font-size="13" font-weight="bold" fill="#22543d">Storage Subsystem (Member 2)</text>
+    <text x="475" y="268" text-anchor="middle" font-size="11" fill="#276749">order_memory (16 Slots + CAM ID)</text>
+    <text x="475" y="286" text-anchor="middle" font-size="11" fill="#276749">fifo_queue (Linked-List Pointers)</text>
+    <text x="475" y="304" text-anchor="middle" font-size="11" fill="#276749">free_list_allocator (LIFO Reclaim)</text>
+  </g>
+
+  <!-- Member 3: Datapath & Arithmetic -->
+  <g filter="url(#shadow)">
+    <rect x="660" y="225" width="250" height="110" rx="6" fill="#fff5f5" stroke="#e53e3e" stroke-width="1.5" />
+    <text x="785" y="248" text-anchor="middle" font-size="13" font-weight="bold" fill="#9b2c2c">Matching Datapath (Member 3)</text>
+    <text x="785" y="268" text-anchor="middle" font-size="11" fill="#742a2a">compatibility_logic (Cross Check)</text>
+    <text x="785" y="286" text-anchor="middle" font-size="11" fill="#742a2a">quantity_arithmetic: min(In, Rest)</text>
+    <text x="785" y="304" text-anchor="middle" font-size="11" fill="#742a2a">Residual Updates (In_rem, Rest_rem)</text>
+  </g>
+
+  <!-- Bottom Row: Output Stage -->
+  <g filter="url(#shadow)">
+    <rect x="250" y="410" width="450" height="90" rx="6" fill="#f7fafc" stroke="#2d3748" stroke-width="1.5" />
+    <text x="475" y="435" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a202c">Registered Trade Execution &amp; Status Outputs</text>
+    <text x="475" y="458" text-anchor="middle" font-size="12" fill="#2d3748">trade_valid, trade_price [5:0], trade_qty [15:0], trade_buy_id, trade_sell_id</text>
+    <text x="475" y="478" text-anchor="middle" font-size="12" fill="#4a5568">done_pulse, reject_valid, reject_code [3:0], book_empty, book_full</text>
+  </g>
+
+  <!-- Connectors -->
+  <!-- Input to Risk Filter -->
+  <line x1="190" y1="127" x2="236" y2="127" stroke="#2d3748" stroke-width="2" marker-end="url(#arrow)" />
+  <!-- Risk Filter to FSM -->
+  <line x1="440" y1="127" x2="496" y2="127" stroke="#2d3748" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="468" y="120" text-anchor="middle" font-size="10" font-weight="bold" fill="#c53030">risk_ok</text>
+
+  <!-- FSM to Blocks Control Bus -->
+  <line x1="570" y1="170" x2="160" y2="221" stroke="#805ad5" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow)" />
+  <line x1="705" y1="170" x2="475" y2="221" stroke="#805ad5" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow)" />
+  <line x1="840" y1="170" x2="785" y2="221" stroke="#805ad5" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow)" />
+
+  <!-- Discovery to Storage (Price to Head Lookup) -->
+  <line x1="290" y1="280" x2="336" y2="280" stroke="#2b6cb0" stroke-width="2" marker-end="url(#arrow-blue)" />
+  <text x="315" y="272" text-anchor="middle" font-size="10" font-weight="bold" fill="#2b6cb0">best_px</text>
+
+  <!-- Storage to Datapath (Resting Order Read to Comp/Arith) -->
+  <line x1="610" y1="280" x2="656" y2="280" stroke="#2b6cb0" stroke-width="2" marker-end="url(#arrow-blue)" />
+  <text x="635" y="272" text-anchor="middle" font-size="10" font-weight="bold" fill="#2b6cb0">rd_px/qty</text>
+
+  <!-- Datapath to Output -->
+  <line x1="760" y1="335" x2="610" y2="406" stroke="#2d3748" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="705" y="375" text-anchor="middle" font-size="10" font-weight="bold" fill="#2d3748">trade_qty</text>
+
+  <!-- Storage to Output -->
+  <line x1="475" y1="335" x2="475" y2="406" stroke="#2d3748" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Feedback: Datapath to Storage & Bitmap (Residual / Pop) -->
+  <path d="M 785 335 L 785 365 L 160 365 L 160 339" fill="none" stroke="#c53030" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow-red)" />
+  <text x="340" y="360" text-anchor="middle" font-size="10" font-weight="bold" fill="#c53030">in_rem, rest_rem, slot_free, queue_pop</text>
+</svg>

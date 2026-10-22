@@ -2,6 +2,7 @@
 
 Synthesizable Verilog RTL Architecture for Digital Logic Design (DLD).
 
+* [Stage 3 Progress Report for Evaluation (docs/Stage_3_Progress_Report.md)](./docs/Stage_3_Progress_Report.md)
 * [Interactive Order Book Simulator (index.html)](./index.html)
 * [Project Architecture & Verification Report (docs/Project_Report.md)](./docs/Project_Report.md)
 
