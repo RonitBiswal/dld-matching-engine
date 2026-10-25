@@ -14,7 +14,6 @@ module master_fsm (
     output wire       done_pulse,
     output wire       reject_pulse
 );
-
     localparam [2:0] S_IDLE     = 3'd0,
                      S_VALIDATE = 3'd1,
                      S_DISCOVER = 3'd2,
@@ -27,6 +26,7 @@ module master_fsm (
     reg [2:0] next_state;
 
     always @* begin
+        next_state = S_IDLE;
         case (state)
             S_IDLE:     next_state = in_valid  ? S_VALIDATE : S_IDLE;
             S_VALIDATE: next_state = risk_ok   ? S_DISCOVER : S_REJECT;
@@ -41,10 +41,8 @@ module master_fsm (
     end
 
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            state <= S_IDLE;
-        else
-            state <= next_state;
+        if (!rst_n) state <= S_IDLE;
+        else        state <= next_state;
     end
 
     assign st_idle     = (state == S_IDLE);
@@ -55,10 +53,9 @@ module master_fsm (
     assign st_insert   = (state == S_INSERT);
     assign st_done     = (state == S_DONE);
     assign st_reject   = (state == S_REJECT);
-
+    
     assign in_ready     = st_idle;
     assign accept       = st_idle & in_valid;
     assign done_pulse   = st_done;
     assign reject_pulse = st_reject;
-
 endmodule
